@@ -3,7 +3,6 @@
 #define SERVER_PATH "local-host-server"
 #define CLIENT_PATH "local-host-client"
 
-
 Client::Client()
 :m_client_socketId(-1)
 {
@@ -85,12 +84,17 @@ void Client::GetMessage()
 
 int main()
 {
-
 	Client clt;
 	std::cout << "Process id: " << getpid() << std::endl;
 	clt.Connect();
+
+	auto t_start = std::chrono::high_resolution_clock::now();
 	clt.SendMessage();
 	clt.GetMessage();
+	auto t_end = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(t_end - t_start);
+	std::cout << "Round trip time(ns): " << duration.count() << std::endl;
 
 	return 0;
 }

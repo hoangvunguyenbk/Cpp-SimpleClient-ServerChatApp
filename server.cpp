@@ -39,7 +39,6 @@ Server::Server()
 		perror("SERVER ERROR: listen new connection failed\n");
 		exit(1);
 	}
-	
 }
 
 Server::~Server() {}
@@ -61,8 +60,17 @@ void Server::HandleConnection(const unsigned int &client_socket)
 
 	const char* msg = buf_recv;
 
+	auto t_start = std::chrono::high_resolution_clock::now();
+
 	this->GetMessage(msg, client_socket);
 	this->SendMessage(client_socket);
+
+	auto t_end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(t_end - t_start);
+	std::cout << "Round trip time(ns): " << duration.count() << std::endl;
+	std::cout << "--------------------------------------------------------\n";
+
+	//decrease active client counter once message have been sent.
 	m_active_client--;
 }
 
@@ -70,8 +78,7 @@ void Server::Run()
 {
 	unsigned int client_socketId = -1;
 	for(;;) 
-	{
-		
+	{	
 		if(m_active_client > MAX_CLIENT)
 		{
 			std::cout << "Reached maximum connections, please try again later\n";
@@ -90,7 +97,6 @@ void Server::Run()
 		std::thread t(&Server::HandleConnection, this, client_socketId);
 		t.join();
 		m_active_client++;
-
 	}
 }
 
